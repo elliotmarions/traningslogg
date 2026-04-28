@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Träningslogg</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #c8f135;
+    --accent2: #a8d420;
+    --text: #f0f0f0;
+    --muted: #666;
+    --styrka: #c8f135;
+    --lopning: #35c8f1;
+    --yoga: #f1a135;
+    --promenad: #35f1a1;
+    --grupp: #c479f5;
+    --pt: #f16090;
+    --red: #f13535;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  header {
+    padding: 2rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  header span {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+  }
+
+  .tabs-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    padding: 1rem 1.5rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-panel {
+    display: none;
+    padding: 2rem 2.5rem;
+    max-width: 720px;
+  }
+
+  .tab-panel.active { display: block; }
+
+  .field {
+    margin-bottom: 1.2rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 70px; }
+
+  select option { background: #1a1a1a; }
+
+  /* Type toggle */
+  .type-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .type-btn {
+    padding: 0.6rem 0.4rem;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .type-btn.active { border-color: var(--active-color); color: var(--active-color); background: color-mix(in srgb, var(--active-color) 8%, transparent); }
+  .type-btn[data-type="styrka"]   { --active-color: var(--styrka); }
+  .type-btn[data-type="lopning"]  { --active-color: var(--lopning); }
+  .type-btn[data-type="yoga"]     { --active-color: var(--yoga); }
+  .type-btn[data-type="promenad"] { --active-color: var(--promenad); }
+  .type-btn[data-type="grupp"]    { --active-color: var(--grupp); }
+  .type-btn[data-type="pt"]       { --active-color: var(--pt); }
+
+  /* Energy */
+  .energy-row {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .energy-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .energy-btn.active {
+    border-color: var(--accent);
+    background: rgba(200,241,53,0.08);
+    transform: scale(1.05);
+  }
+
+  /* Exercises */
+  .exercises-section {
+    margin-bottom: 1.2rem;
+  }
+
+  .exercises-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .add-exercise-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 5px;
+    padding: 0.25rem 0.7rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .add-exercise-btn:hover {
+    background: rgba(200,241,53,0.1);
+  }
+
+  .exercise-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .exercise-row input {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .remove-ex {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.3rem;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+
+  .pb-live-badge {
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    margin-top: -0.1rem;
+    letter-spacing: 0.3px;
+    animation: pbPop 0.25s ease;
+  }
+
+  .pb-new {
+    background: rgba(200,241,53,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(200,241,53,0.3);
+  }
+
+  .pb-match {
+    background: rgba(53,200,241,0.1);
+    color: var(--lopning);
+    border: 1px solid rgba(53,200,241,0.25);
+  }
+
+  @keyframes pbPop {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .remove-ex:hover { color: var(--red); }
+
+  .ex-labels {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 0.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .ex-labels span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-left: 0.2rem;
+  }
+
+  /* Submit */
+  .submit-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 0.5rem;
+  }
+
+  .submit-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  /* RIGHT: Log */
+
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.3rem 0.8rem;
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+  .session-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1rem;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+  }
+
+  .card-type {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    padding: 0.2rem 0.7rem;
+    border-radius: 4px;
+  }
+
+  .card-type.gym {
+    color: var(--gym);
+    background: rgba(200,241,53,0.08);
+    border: 1px solid rgba(200,241,53,0.2);
+  }
+
+  .card-type.cardio {
+    color: var(--cardio);
+    background: rgba(53,200,241,0.08);
+    border: 1px solid rgba(53,200,241,0.2);
+  }
+
+  .card-datetime {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 1.2rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .meta-item span:first-child { font-size: 0.9rem; }
+
+  .card-exercises {
+    border-top: 1px solid var(--border);
+    padding-top: 0.7rem;
+    margin-top: 0.5rem;
+  }
+
+  .card-exercises h4 {
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+  }
+
+  .ex-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .ex-table th {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.72rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ex-table td {
+    padding: 0.25rem 0;
+    color: var(--text);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .card-note {
+    margin-top: 0.7rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    border-left: 2px solid var(--border);
+    padding-left: 0.7rem;
+  }
+
+  .energy-display {
+    font-size: 1rem;
+  }
+
+  .edit-session {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0.2rem;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+
+  .edit-session:hover { color: var(--accent); }
+
+  .delete-session {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.15s;
+    padding: 0.2rem;
+  }
+
+  .confirm-yes, .confirm-no {
+    border: none;
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .confirm-yes { background: var(--red); color: #fff; }
+  .confirm-no  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .confirm-yes:hover, .confirm-no:hover { opacity: 0.8; }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  .stat-filter-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.8rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 0.35rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #0a0a0a; }
+
+  .stat-section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  .type-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .type-bar-label {
+    width: 110px;
+    font-size: 0.82rem;
+    color: var(--text);
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .type-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .type-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .type-bar-count {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .energy-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .energy-bar-label {
+    width: 130px;
+    font-size: 0.82rem;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  .energy-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .energy-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .energy-bar-count {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .monthly-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .month-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+  }
+
+  .month-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    background: var(--accent);
+    opacity: 0.7;
+    min-height: 2px;
+    transition: height 0.4s ease;
+  }
+
+  .month-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .month-count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .no-data-msg {
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 1rem 0;
+  }
+
+  .duration-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .dur-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .dur-wrap input {
+    padding-right: 2.2rem;
+    text-align: center;
+  }
+
+  .dur-suffix {
+    position: absolute;
+    right: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .log-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+
+  .sub-nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  .sub-nav-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem 0.55rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .sub-nav-btn:hover { color: var(--text); }
+  .sub-nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── PERSONBÄSTA ── */
+  .pb-cat-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+
+  .pb-cat-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pb-cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .pb-cat-btn.active { background: var(--accent); border-color: var(--accent); color: #0a0a0a; }
+
+  .pb-filter-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.4rem;
+    min-height: 2rem;
+  }
+
+  .pb-filter-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .pb-filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.07); }
+
+  .pb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+
+  .pb-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0 0 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pb-table td {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .pb-table tr:first-child td { padding-top: 0.7rem; }
+
+  .pb-badge {
+    font-size: 0.9rem;
+    margin-right: 0.3rem;
+  }
+
+  .pb-rank-1 td:first-child { color: #FFD700; font-weight: 700; }
+  .pb-rank-2 td:first-child { color: #C0C0C0; font-weight: 600; }
+  .pb-rank-3 td:first-child { color: #CD7F32; font-weight: 600; }
+
+  .pb-improvement {
+    font-size: 0.75rem;
+    color: var(--promenad);
+    margin-left: 0.3rem;
+  }
+
+  .pb-section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin: 1.5rem 0 0.7rem;
+  }
+
+  .pb-empty {
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 2rem 0;
+    text-align: center;
+  }
+
+  .pb-trend-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+  }
+
+  .pb-trend-date { color: var(--muted); width: 90px; flex-shrink: 0; }
+  .pb-trend-bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .pb-trend-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .pb-trend-val { width: 70px; text-align: right; color: var(--text); flex-shrink: 0; }
+
+  .vikt-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1.2rem;
+  }
+
+  .vikt-form .field:last-of-type { grid-column: 1 / -1; }
+  .vikt-form .submit-btn { grid-column: 1 / -1; }
+
+  .vikt-log-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .vikt-log-left { display: flex; flex-direction: column; gap: 0.15rem; }
+  .vikt-log-date { color: var(--muted); font-size: 0.78rem; }
+  .vikt-log-note { color: var(--muted); font-size: 0.78rem; font-style: italic; }
+  .vikt-log-right { display: flex; align-items: center; gap: 0.5rem; }
+  .vikt-log-kg   { font-weight: 700; font-size: 1rem; color: var(--text); }
+  .vikt-diff-pos { color: var(--muted); font-size: 0.75rem; }
+  .vikt-diff-neg { color: var(--muted); font-size: 0.75rem; }
+
+  #vikt-datum::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  #vikt-datum::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    header {
+      padding: 1.2rem 1.2rem 1rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+    }
+
+    header span {
+      font-size: 0.72rem;
+      text-align: right;
+      max-width: 140px;
+    }
+
+    .tabs-nav {
+      padding: 0;
+      justify-content: stretch;
+    }
+
+    .tab-btn {
+      flex: 1;
+      font-size: 0.7rem;
+      padding: 0.85rem 0.3rem 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-panel {
+      padding: 1.2rem 1rem;
+      max-width: 100%;
+    }
+
+    .type-toggle {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .type-btn {
+      font-size: 0.78rem;
+      padding: 0.65rem 0.3rem;
+    }
+
+    .exercise-row,
+    .ex-labels {
+      grid-template-columns: 2fr 0.7fr 0.7fr 0.7fr auto;
+      gap: 0.25rem;
+    }
+
+    .exercise-row input {
+      padding: 0.45rem 0.3rem;
+      font-size: 0.78rem;
+    }
+
+    input, select, textarea {
+      font-size: 16px;
+    }
+
+    .stats-bar {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .stat-num {
+      font-size: 1.6rem;
+    }
+
+    .stat-filter-row {
+      gap: 0.4rem;
+    }
+
+    .filter-btn {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.7rem;
+    }
+
+    .session-card {
+      padding: 1rem 1rem;
+    }
+
+    .card-top {
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .card-datetime {
+      font-size: 0.72rem;
+    }
+
+    .submit-btn {
+      font-size: 1.1rem;
+      padding: 1rem;
+      position: sticky;
+      bottom: 1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .type-bar-label {
+      width: 90px;
+      font-size: 0.75rem;
+    }
+
+    .energy-bar-label {
+      width: 105px;
+      font-size: 0.75rem;
+    }
+
+    .monthly-row {
+      gap: 0.2rem;
+    }
+
+    .month-label {
+      font-size: 0.55rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Träningslogg</h1>
+  <span id="today-date"></span>
+</header>
+
+<nav class="tabs-nav">
+  <button class="tab-btn active" onclick="switchTab('logga')">✏️ Logga pass</button>
+  <button class="tab-btn" onclick="switchTab('logg')">📋 Logg</button>
+  <button class="tab-btn" onclick="switchTab('statistik')">📊 Statistik</button>
+  <button class="tab-btn" onclick="switchTab('vikt')">⚖️ Vikt</button>
+</nav>
+
+<!-- TAB: LOGGA -->
+<div class="tab-panel active" id="tab-logga">
+
+    <div class="field">
+      <label>Träningstyp</label>
+      <div class="type-toggle">
+        <button class="type-btn active" data-type="styrka" onclick="setType('styrka')">🏋️ Styrka</button>
+        <button class="type-btn" data-type="lopning" onclick="setType('lopning')">🏃 Löpning</button>
+        <button class="type-btn" data-type="yoga" onclick="setType('yoga')">🧘 Mindfulness</button>
+        <button class="type-btn" data-type="promenad" onclick="setType('promenad')">🚶 Promenad</button>
+        <button class="type-btn" data-type="grupp" onclick="setType('grupp')">🤸 Gruppträning</button>
+        <button class="type-btn" data-type="pt" onclick="setType('pt')">⭐ PT-pass</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Datum & Tid</label>
+      <input type="datetime-local" id="datetime" />
+    </div>
+
+    <div class="field">
+      <label>Duration</label>
+      <div class="duration-row">
+        <div class="dur-wrap"><input type="number" id="dur-h" placeholder="0" min="0" max="12" /><span class="dur-suffix">h</span></div>
+        <div class="dur-wrap"><input type="number" id="dur-m" placeholder="0" min="0" max="59" /><span class="dur-suffix">min</span></div>
+        <div class="dur-wrap"><input type="number" id="dur-s" placeholder="0" min="0" max="59" /><span class="dur-suffix">sek</span></div>
+      </div>
+    </div>
+
+    <!-- Styrka / Gruppträning / PT: övningar -->
+    <div class="exercises-section" id="section-styrka">
+      <div class="exercises-header">
+        <label style="margin:0">Övningar</label>
+        <button class="add-exercise-btn" onclick="addExercise()">+ Lägg till</button>
+      </div>
+      <div class="ex-labels">
+        <span>Övning</span>
+        <span>Set</span>
+        <span>Reps</span>
+        <span>Kg</span>
+        <span></span>
+      </div>
+      <div id="exercise-list"></div>
+    </div>
+
+    <!-- Löpning: distans & intervall -->
+    <div class="exercises-section" id="section-lopning" style="display:none">
+
+      <div class="field" style="margin-bottom:1rem">
+        <label>Typ av löpning</label>
+        <select id="run-type" onchange="setRunType(this.value)">
+          <option value="distans">📏 Distans</option>
+          <option value="intervall">⚡ Intervall</option>
+        </select>
+      </div>
+
+      <!-- Distans -->
+      <div id="run-section-distans">
+        <div class="exercises-header">
+          <label style="margin:0">Distans</label>
+          <button class="add-exercise-btn" onclick="addRun('distans')">+ Lägg till</button>
+        </div>
+        <div class="ex-labels" style="grid-template-columns:2fr 2fr 2fr auto">
+          <span>Km</span><span>Min/km</span><span>Puls</span><span></span>
+        </div>
+        <div id="run-list-distans"></div>
+      </div>
+
+      <!-- Intervall -->
+      <div id="run-section-intervall" style="display:none">
+        <div class="exercises-header">
+          <label style="margin:0">Intervall</label>
+          <button class="add-exercise-btn" onclick="addRun('intervall')">+ Lägg till</button>
+        </div>
+        <div class="ex-labels" style="grid-template-columns:2fr 2fr 2fr auto">
+          <span>Km</span><span>Min/km</span><span>Puls</span><span></span>
+        </div>
+        <div id="run-list-intervall"></div>
+      </div>
+
+    </div>
+
+    <!-- Promenad: distans -->
+    <div class="field" id="section-promenad" style="display:none">
+      <label>Distans</label>
+      <div class="dur-wrap">
+        <input type="number" id="promenad-km" min="0" step="0.1" placeholder="0" oninput="if(this.value==='0')this.value=''" />
+        <span class="dur-suffix">km</span>
+      </div>
+    </div>
+
+    <!-- Mindfulness: typ -->
+    <div class="field" id="section-mindfulness" style="display:none">
+      <label>Typ av mindfulness</label>
+      <input type="text" id="mindfulness-type" placeholder="T.ex. Yoga, Meditation, Andningsövning..." />
+    </div>
+
+    <!-- PT-pass: tränarnamn -->
+    <div class="field" id="section-pt-trainer" style="display:none">
+      <label>PT / Tränare</label>
+      <input type="text" id="pt-trainer" placeholder="Namn på din PT..." />
+    </div>
+
+    <!-- Tränade med (alla typer) -->
+    <div class="field">
+      <label>Tränade med</label>
+      <input type="text" id="trained-with" placeholder="Namn på person (lämna tomt om du tränade ensam)..." />
+    </div>
+
+    <div class="field">
+      <label>Energinivå</label>
+      <div class="energy-row" id="energy-row">
+        <button class="energy-btn" onclick="setEnergy(1)" title="Låg">😴</button>
+        <button class="energy-btn" onclick="setEnergy(2)" title="Ganska låg">😕</button>
+        <button class="energy-btn" onclick="setEnergy(3)" title="Ok">😐</button>
+        <button class="energy-btn" onclick="setEnergy(4)" title="Bra">😊</button>
+        <button class="energy-btn" onclick="setEnergy(5)" title="Topp!">🔥</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Anteckningar</label>
+      <textarea id="notes" placeholder="Hur kändes passet? Något att notera..."></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="saveSession()">SPARA PASS</button>
+
+</div>
+
+<!-- TAB: LOGG -->
+<div class="tab-panel" id="tab-logg">
+  <div class="log-header">
+    <h2>Logg</h2>
+    <div style="display:flex;align-items:center;gap:0.5rem">
+      <button class="clear-btn" onclick="exportLogg()">⬇ Excel</button>
+      <button class="clear-btn" id="clear-btn-main" onclick="clearAll()">Rensa allt</button>
+      <span id="clear-confirm" style="display:none;align-items:center;gap:0.4rem">
+        <span style="font-size:0.75rem;color:var(--muted)">Rensa allt?</span>
+        <button class="confirm-yes" onclick="clearAll()">Ja</button>
+        <button class="confirm-no" onclick="cancelClearAll()">Nej</button>
+      </span>
+    </div>
+  </div>
+  <div id="log-list"></div>
+</div>
+
+<!-- TAB: STATISTIK -->
+<div class="tab-panel" id="tab-statistik">
+
+  <!-- Sub-nav -->
+  <div class="sub-nav" style="justify-content:space-between">
+    <div style="display:flex">
+      <button class="sub-nav-btn active" onclick="setStatSubTab('oversikt')">Översikt</button>
+      <button class="sub-nav-btn" onclick="setStatSubTab('pb')">🏆 Personbästa</button>
+    </div>
+    <button class="clear-btn" style="margin-bottom:1px" onclick="exportStatistik()">⬇ Excel</button>
+  </div>
+
+  <!-- SUB: ÖVERSIKT -->
+  <div id="subtab-oversikt">
+
+    <!-- Period filter -->
+    <div class="stat-filter-row">
+      <button class="filter-btn active" onclick="setStatPeriod('all')">All tid</button>
+      <button class="filter-btn" onclick="setStatPeriod('year')">Detta år</button>
+      <button class="filter-btn" onclick="setStatPeriod('3month')">3 månader</button>
+      <button class="filter-btn" onclick="setStatPeriod('month')">Denna månad</button>
+    </div>
+
+    <div class="stat-section-title">Översikt</div>
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Pass totalt</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-avgweek">0</div><div class="stat-label">Pass / vecka</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Veckor i rad</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-totaltime">–</div><div class="stat-label">Total tid</div></div>
+    </div>
+
+    <div class="stat-section-title">Pass per träningstyp</div>
+    <div id="stat-type-bars"></div>
+
+    <div class="stat-section-title">Energinivå</div>
+    <div id="stat-energy-bars"></div>
+
+    <div class="stats-bar" style="margin-top:0">
+      <div class="stat-box"><div class="stat-num" id="stat-bestweek">–</div><div class="stat-label">Aktivaste veckan</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-bestday">–</div><div class="stat-label">Aktivaste veckodagen</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-avgdur">–</div><div class="stat-label">Snitttid per pass</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-longestdur">–</div><div class="stat-label">Längsta passet</div></div>
+    </div>
+
+    <div class="stat-section-title">Aktivitet per månad</div>
+    <div id="stat-monthly-bars"></div>
+
+  </div>
+
+  <!-- SUB: PERSONBÄSTA -->
+  <div id="subtab-pb" style="display:none">
+    <div class="pb-cat-row">
+      <button class="pb-cat-btn active" onclick="setPbCat('lopning')">🏃 Löpning</button>
+      <button class="pb-cat-btn" onclick="setPbCat('styrka')">🏋️ Styrka</button>
+      <button class="pb-cat-btn" onclick="setPbCat('promenad')">🚶 Promenad</button>
+      <button class="pb-cat-btn" onclick="setPbCat('duration')">⏱ Duration</button>
+    </div>
+    <div class="pb-filter-row" id="pb-filter-row"></div>
+    <div id="pb-results"></div>
+  </div>
+
+</div>
+
+
+<!-- TAB: VIKT -->
+<div class="tab-panel" id="tab-vikt">
+
+  <!-- Log form -->
+  <div class="vikt-form">
+    <div class="field">
+      <label>Datum</label>
+      <input type="date" id="vikt-datum" />
+    </div>
+    <div class="field">
+      <label>Vikt</label>
+      <div class="dur-wrap">
+        <input type="number" id="vikt-kg" min="0" step="0.1" placeholder="0" oninput="if(this.value==='0')this.value=''" />
+        <span class="dur-suffix">kg</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Anteckningar <span style="color:var(--muted);font-weight:400">(valfritt)</span></label>
+      <input type="text" id="vikt-notes" placeholder="T.ex. efter frukost, morgon..." />
+    </div>
+    <button class="submit-btn" onclick="saveVikt()">SPARA VIKT</button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-bar" id="vikt-stats" style="margin-top:1.8rem">
+    <div class="stat-box"><div class="stat-num" id="vikt-current">–</div><div class="stat-label">Senaste</div></div>
+    <div class="stat-box"><div class="stat-num" id="vikt-start">–</div><div class="stat-label">Start</div></div>
+    <div class="stat-box"><div class="stat-num" id="vikt-change">–</div><div class="stat-label">Förändring</div></div>
+    <div class="stat-box"><div class="stat-num" id="vikt-lowest">–</div><div class="stat-label">Lägsta</div></div>
+  </div>
+
+  <!-- Chart -->
+  <div class="stat-section-title" id="vikt-chart-title" style="margin-top:1.5rem">Utveckling</div>
+  <div class="stat-filter-row" style="margin-bottom:0.8rem">
+    <button class="filter-btn active" onclick="setViktPeriod('all')">All tid</button>
+    <button class="filter-btn" onclick="setViktPeriod('year')">1 år</button>
+    <button class="filter-btn" onclick="setViktPeriod('6month')">6 månader</button>
+    <button class="filter-btn" onclick="setViktPeriod('3month')">3 månader</button>
+    <button class="filter-btn" onclick="setViktPeriod('month')">1 månad</button>
+  </div>
+  <div id="vikt-chart-wrap">
+    <canvas id="vikt-chart" style="width:100%;height:200px"></canvas>
+  </div>
+
+  <!-- Log list -->
+  <div class="stat-section-title" style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center">
+    <span>Logg</span>
+    <button class="clear-btn" onclick="exportVikt()">⬇ Excel</button>
+  </div>
+  <div id="vikt-list"></div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.75);overflow-y:auto;padding:1rem">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:520px;margin:2rem auto;padding:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--accent)">Redigera pass</h2>
+      <button onclick="closeEdit()" style="background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer">✕</button>
+    </div>
+
+    <div class="field">
+      <label>Träningstyp</label>
+      <select id="edit-type">
+        <option value="styrka">🏋️ Styrka</option>
+        <option value="lopning">🏃 Löpning</option>
+        <option value="yoga">🧘 Mindfulness</option>
+        <option value="promenad">🚶 Promenad</option>
+        <option value="grupp">🤸 Gruppträning</option>
+        <option value="pt">⭐ PT-pass</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Datum & Tid</label>
+      <input type="datetime-local" id="edit-datetime" />
+    </div>
+
+    <div class="field">
+      <label>Duration</label>
+      <div class="duration-row">
+        <div class="dur-wrap"><input type="number" id="edit-dur-h" min="0" max="12" placeholder="0" /><span class="dur-suffix">h</span></div>
+        <div class="dur-wrap"><input type="number" id="edit-dur-m" min="0" max="59" placeholder="0" /><span class="dur-suffix">min</span></div>
+        <div class="dur-wrap"><input type="number" id="edit-dur-s" min="0" max="59" placeholder="0" /><span class="dur-suffix">sek</span></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Energinivå</label>
+      <div class="energy-row" id="edit-energy-row">
+        <button class="energy-btn" onclick="setEditEnergy(1)">😴</button>
+        <button class="energy-btn" onclick="setEditEnergy(2)">😕</button>
+        <button class="energy-btn" onclick="setEditEnergy(3)">😐</button>
+        <button class="energy-btn" onclick="setEditEnergy(4)">😊</button>
+        <button class="energy-btn" onclick="setEditEnergy(5)">🔥</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tränade med</label>
+      <input type="text" id="edit-trained-with" placeholder="Namn på person..." />
+    </div>
+
+    <div class="field">
+      <label>Anteckningar</label>
+      <textarea id="edit-notes" placeholder="Hur kändes passet?"></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="saveEdit()">SPARA ÄNDRINGAR</button>
+  </div>
+</div>
+
+<script>
+  const ENERGY_EMOJI = ['', '😴', '😕', '😐', '😊', '🔥'];
+  const ENERGY_LABEL = ['', 'Låg', 'Ganska låg', 'Ok', 'Bra', 'Topp!'];
+
+  function updateDurColor(input) {
+    input.style.color = (!input.value || input.value === '0') ? 'var(--muted)' : 'var(--text)';
+  }
+
+  ['dur-h','dur-m','dur-s'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => updateDurColor(el));
+    el.addEventListener('change', () => updateDurColor(el));
+    updateDurColor(el);
+  });
+
+  const TYPE_LABELS = {
+    styrka:   '🏋️ Styrka',
+    lopning:  '🏃 Löpning',
+    yoga:     '🧘 Mindfulness',
+    promenad: '🚶 Promenad',
+    grupp:    '🤸 Gruppträning',
+    pt:       '⭐ PT-pass'
+  };
+
+  let currentType = 'styrka';
+
+  function setType(type) {
+    currentType = type;
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.type === type);
+    });
+    document.getElementById('section-styrka').style.display     = ['styrka','grupp','pt'].includes(type) ? 'block' : 'none';
+    document.getElementById('section-lopning').style.display    = type === 'lopning'      ? 'block' : 'none';
+    document.getElementById('section-promenad').style.display   = type === 'promenad'     ? 'block' : 'none';
+    document.getElementById('section-mindfulness').style.display= type === 'yoga'         ? 'block' : 'none';
+    document.getElementById('section-pt-trainer').style.display = type === 'pt'           ? 'block' : 'none';
+  }
+
+  let currentEnergy = 0;
+  let sessions = JSON.parse(localStorage.getItem('traning_sessions') || '[]');
+
+  // Set today
+  const now = new Date();
+  document.getElementById('today-date').textContent = now.toLocaleDateString('sv-SE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('datetime').value = now.toISOString().slice(0, 16);
+
+  function setEnergy(level) {
+    currentEnergy = level;
+    document.querySelectorAll('.energy-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i + 1 === level);
+    });
+  }
+
+  function addExercise() {
+    const list = document.getElementById('exercise-list');
+    const row = document.createElement('div');
+    row.className = 'exercise-row';
+    row.innerHTML = `
+      <input type="text" placeholder="" oninput="checkExPb(this)" />
+      <input type="number" min="0" oninput="if(this.value==='0')this.value=''" />
+      <input type="number" min="0" oninput="if(this.value==='0')this.value=''" />
+      <input type="number" min="0" step="0.5" oninput="if(this.value==='0')this.value='';checkExPb(this.closest('.exercise-row').querySelector('input[type=text]'))" />
+      <button class="remove-ex" onclick="this.parentElement.remove()">✕</button>
+    `;
+    // pb badge placeholder
+    const badge = document.createElement('div');
+    badge.className = 'pb-live-badge';
+    badge.style.display = 'none';
+    row.appendChild(badge);
+    list.appendChild(row);
+  }
+
+  let currentRunType = 'distans';
+
+  function setRunType(val) {
+    currentRunType = val;
+    document.getElementById('run-section-distans').style.display   = val === 'distans'   ? 'block' : 'none';
+    document.getElementById('run-section-intervall').style.display = val === 'intervall' ? 'block' : 'none';
+  }
+
+  function addRun(type) {
+    type = type || currentRunType;
+    const list = document.getElementById('run-list-' + type);
+    const row = document.createElement('div');
+    row.className = 'exercise-row';
+    row.style.gridTemplateColumns = '2fr 2fr 2fr auto';
+    row.innerHTML = `
+      <input type="number" min="0" step="0.1" placeholder="" oninput="if(this.value==='0')this.value='';checkRunPb(this,'${type}')" />
+      <input type="number" min="0" step="0.1" oninput="if(this.value==='0')this.value='';checkRunPb(this.closest('.exercise-row').querySelector('input:first-child'),'${type}')" />
+      <input type="number" min="0" oninput="if(this.value==='0')this.value=''" />
+      <button class="remove-ex" onclick="this.parentElement.remove()">✕</button>
+    `;
+    const badge = document.createElement('div');
+    badge.className = 'pb-live-badge';
+    badge.style.display = 'none';
+    row.appendChild(badge);
+    list.appendChild(row);
+  }
+
+  function checkExPb(nameInput) {
+    const row    = nameInput.closest('.exercise-row');
+    const badge  = row.querySelector('.pb-live-badge');
+    const name   = nameInput.value.trim().toLowerCase();
+    const kgInput = row.querySelectorAll('input[type=number]')[2];
+    const kg      = parseFloat(kgInput?.value);
+    if (!name || isNaN(kg) || kg <= 0) { badge.style.display = 'none'; return; }
+
+    const prevBest = sessions
+      .flatMap(s => (s.exercises||[]))
+      .filter(e => e.name.trim().toLowerCase() === name)
+      .map(e => parseFloat(e.kg))
+      .filter(v => !isNaN(v));
+
+    if (!prevBest.length) {
+      badge.style.display = 'block';
+      badge.textContent = '🏆 Första gången!';
+      badge.className = 'pb-live-badge pb-new';
+    } else {
+      const best = Math.max(...prevBest);
+      if (kg > best) {
+        badge.style.display = 'block';
+        badge.textContent = `🏆 Nytt PB! +${(kg - best).toFixed(1)} kg`;
+        badge.className = 'pb-live-badge pb-new';
+      } else if (kg === best) {
+        badge.style.display = 'block';
+        badge.textContent = `⚡ Matchar PB (${best} kg)`;
+        badge.className = 'pb-live-badge pb-match';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+  function checkRunPb(kmInput, runType) {
+    const row     = kmInput.closest('.exercise-row');
+    const badge   = row.querySelector('.pb-live-badge');
+    const inputs  = row.querySelectorAll('input[type=number]');
+    const km      = parseFloat(inputs[0]?.value);
+    const pace    = parseFloat(inputs[1]?.value);
+    if (!km || isNaN(pace) || pace <= 0) { badge.style.display = 'none'; return; }
+
+    const prevBest = sessions
+      .filter(s => s.type === 'lopning')
+      .flatMap(s => (s.runs||[]))
+      .filter(r => (r.runType || 'distans') === (runType || 'distans') && parseFloat(r.km) === km && parseFloat(r.pace) > 0)
+      .map(r => parseFloat(r.pace))
+      .filter(v => !isNaN(v));
+
+    if (!prevBest.length) {
+      badge.style.display = 'block';
+      badge.textContent = '🏆 Första gången på denna distans!';
+      badge.className = 'pb-live-badge pb-new';
+    } else {
+      const best = Math.min(...prevBest); // lägre pace = bättre
+      if (pace < best) {
+        const diff = ((best - pace) * 60).toFixed(0);
+        badge.style.display = 'block';
+        badge.textContent = `🏆 Nytt PB! ${diff}s snabbare/km`;
+        badge.className = 'pb-live-badge pb-new';
+      } else if (pace === best) {
+        badge.style.display = 'block';
+        badge.textContent = `⚡ Matchar PB`;
+        badge.className = 'pb-live-badge pb-match';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+  function getRuns() {
+    const runs = [];
+    ['distans','intervall'].forEach(type => {
+      const rows = document.querySelectorAll(`#run-list-${type} .exercise-row`);
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        const km = inputs[0].value;
+        if (km) {
+          runs.push({
+            runType: type,
+            km:    km || '-',
+            pace:  inputs[1].value || '-',
+            pulse: inputs[2].value || '-'
+          });
+        }
+      });
+    });
+    return runs;
+  }
+
+  function getExercises() {
+    const rows = document.querySelectorAll('#exercise-list .exercise-row');
+    const exercises = [];
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const name = inputs[0].value.trim();
+      if (name) {
+        exercises.push({
+          name,
+          sets: inputs[1].value || '-',
+          reps: inputs[2].value || '-',
+          kg: inputs[3].value || '-'
+        });
+      }
+    });
+    return exercises;
+  }
+
+  function saveSession() {
+    const datetime = document.getElementById('datetime').value;
+    const h = parseInt(document.getElementById('dur-h').value) || 0;
+    const m = parseInt(document.getElementById('dur-m').value) || 0;
+    const s = parseInt(document.getElementById('dur-s').value) || 0;
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!datetime) { alert('Välj datum och tid!'); return; }
+    if (h === 0 && m === 0 && s === 0) { alert('Ange duration!'); return; }
+
+    const session = {
+      id: Date.now(),
+      type: currentType,
+      datetime,
+      duration: { h, m, s },
+      exercises: currentType === 'lopning' ? [] : getExercises(),      runs: currentType === 'lopning' ? getRuns() : [],
+      promenadKm: currentType === 'promenad' ? (parseFloat(document.getElementById('promenad-km').value) || null) : null,
+      mindfulnessType: currentType === 'yoga' ? (document.getElementById('mindfulness-type').value.trim() || null) : null,
+      ptTrainer: currentType === 'pt' ? (document.getElementById('pt-trainer').value.trim() || null) : null,
+      trainedWith: document.getElementById('trained-with').value.trim() || null,
+      energy: currentEnergy,
+      notes
+    };
+
+    sessions.unshift(session);
+    localStorage.setItem('traning_sessions', JSON.stringify(sessions));
+    renderLog();
+    resetForm();
+    switchTab('logg');
+  }
+
+  function resetForm() {
+    document.getElementById('datetime').value = new Date().toISOString().slice(0,16);
+    document.getElementById('dur-h').value = '';
+    document.getElementById('dur-m').value = '';
+    document.getElementById('dur-s').value = '';
+    ['dur-h','dur-m','dur-s'].forEach(id => updateDurColor(document.getElementById(id)));
+    document.getElementById('notes').value = '';
+    document.getElementById('exercise-list').innerHTML = '';
+    document.getElementById('run-list-distans').innerHTML = '';
+    document.getElementById('run-list-intervall').innerHTML = '';
+    document.getElementById('run-type').value = 'distans';
+    setRunType('distans');
+    document.getElementById('promenad-km').value = '';
+    document.getElementById('mindfulness-type').value = '';
+    document.getElementById('pt-trainer').value = '';
+    document.getElementById('trained-with').value = '';
+    currentEnergy = 0;
+    document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('active'));
+  }
+
+  function showDeleteConfirm(btn, id) {
+    btn.style.display = 'none';
+    btn.nextElementSibling.style.display = 'flex';
+  }
+
+  function hideDeleteConfirm(btn) {
+    const confirm = btn.closest('.delete-confirm');
+    confirm.style.display = 'none';
+    confirm.previousElementSibling.style.display = 'inline-block';
+  }
+
+  function deleteSession(id) {
+    sessions = sessions.filter(s => s.id !== id);
+    localStorage.setItem('traning_sessions', JSON.stringify(sessions));
+    renderLog();
+  }
+
+  function clearAll() {
+    if (window.clearAllPending) {
+      sessions = [];
+      localStorage.setItem('traning_sessions', JSON.stringify(sessions));
+      renderLog();
+      window.clearAllPending = false;
+      document.getElementById('clear-confirm').style.display = 'none';
+      document.getElementById('clear-btn-main').style.display = 'inline-block';
+    } else {
+      window.clearAllPending = true;
+      document.getElementById('clear-btn-main').style.display = 'none';
+      document.getElementById('clear-confirm').style.display = 'flex';
+    }
+  }
+
+  function cancelClearAll() {
+    window.clearAllPending = false;
+    document.getElementById('clear-confirm').style.display = 'none';
+    document.getElementById('clear-btn-main').style.display = 'inline-block';
+  }
+
+  function formatDuration(d) {
+    const parts = [];
+    if (d.h) parts.push(d.h + 'h');
+    if (d.m) parts.push(d.m + 'min');
+    if (d.s) parts.push(d.s + 's');
+    return parts.join(' ') || '-';
+  }
+
+  function formatDatetime(dt) {
+    const d = new Date(dt);
+    return d.toLocaleDateString('sv-SE', { weekday:'short', month:'short', day:'numeric' }) +
+           ' · ' + d.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['logga','logg','statistik','vikt'][i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'statistik') renderStats();
+    if (name === 'vikt') renderVikt();
+  }
+
+  function setStatSubTab(name) {
+    document.querySelectorAll('.sub-nav-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['oversikt','pb'][i] === name);
+    });
+    document.getElementById('subtab-oversikt').style.display = name === 'oversikt' ? 'block' : 'none';
+    document.getElementById('subtab-pb').style.display       = name === 'pb'       ? 'block' : 'none';
+    if (name === 'pb') renderPb();
+  }
+
+  let statPeriod = 'all';
+
+  function setStatPeriod(period) {
+    statPeriod = period;
+    document.querySelectorAll('.filter-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['all','year','3month','month'][i] === period);
+    });
+    renderStats();
+  }
+
+  function getFilteredSessions() {
+    const now = new Date();
+    return sessions.filter(s => {
+      const d = new Date(s.datetime);
+      if (statPeriod === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      if (statPeriod === '3month') return (now - d) <= 1000*60*60*24*90;
+      if (statPeriod === 'year') return d.getFullYear() === now.getFullYear();
+      return true;
+    });
+  }
+
+  function durToMinutes(d) { return (d.h||0)*60 + (d.m||0) + (d.s||0)/60; }
+  function formatMinutes(mins) {
+    const h = Math.floor(mins/60), m = Math.round(mins%60);
+    if (h && m) return h + 'h ' + m + 'm';
+    if (h) return h + 'h';
+    return m + 'm';
+  }
+
+  function renderStats() {
+    const fs = getFilteredSessions();
+    const total = fs.length;
+
+    // Overview
+    document.getElementById('stat-total').textContent = total;
+
+    // Avg per week
+    if (total === 0) {
+      document.getElementById('stat-avgweek').textContent = '0';
+      document.getElementById('stat-streak').textContent = '0';
+      document.getElementById('stat-totaltime').textContent = '–';
+      document.getElementById('stat-bestweek').textContent = '–';
+      document.getElementById('stat-bestday').textContent = '–';
+      document.getElementById('stat-avgdur').textContent = '–';
+      document.getElementById('stat-longestdur').textContent = '–';
+      document.getElementById('stat-type-bars').innerHTML = '<div class="no-data-msg">Inga pass att visa.</div>';
+      document.getElementById('stat-energy-bars').innerHTML = '<div class="no-data-msg">Inga pass att visa.</div>';
+      document.getElementById('stat-monthly-bars').innerHTML = '<div class="no-data-msg">Inga pass att visa.</div>';
+      return;
+    }
+
+    const dates = fs.map(s => new Date(s.datetime));
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+    const weekSpan = Math.max(1, Math.ceil((maxDate - minDate) / (1000*60*60*24*7)));
+    document.getElementById('stat-avgweek').textContent = (total / weekSpan).toFixed(1);
+
+    // Streak (consecutive weeks with at least 1 session)
+    let streak = 0;
+    const weekNow = getWeekKey(new Date());
+    for (let w = 0; w < 52; w++) {
+      const d = new Date(); d.setDate(d.getDate() - w*7);
+      const key = getWeekKey(d);
+      if (fs.some(s => getWeekKey(new Date(s.datetime)) === key)) streak++;
+      else if (w > 0) break;
+    }
+    document.getElementById('stat-streak').textContent = streak;
+
+    // Total time
+    const totalMins = fs.reduce((acc, s) => acc + durToMinutes(s.duration), 0);
+    document.getElementById('stat-totaltime').textContent = formatMinutes(totalMins);
+
+    // Avg duration
+    document.getElementById('stat-avgdur').textContent = formatMinutes(totalMins / total);
+
+    // Longest session
+    const longest = Math.max(...fs.map(s => durToMinutes(s.duration)));
+    document.getElementById('stat-longestdur').textContent = formatMinutes(longest);
+
+    // Best week
+    const weekCounts = {};
+    fs.forEach(s => { const k = getWeekKey(new Date(s.datetime)); weekCounts[k] = (weekCounts[k]||0)+1; });
+    const bestWeekKey = Object.entries(weekCounts).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('stat-bestweek').textContent = bestWeekKey ? bestWeekKey[1] + ' pass' : '–';
+
+    // Best day of week
+    const dayCounts = [0,0,0,0,0,0,0];
+    fs.forEach(s => { dayCounts[new Date(s.datetime).getDay()]++; });
+    const dayNames = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
+    const bestDayIdx = dayCounts.indexOf(Math.max(...dayCounts));
+    document.getElementById('stat-bestday').textContent = dayNames[bestDayIdx];
+
+    // Type bars
+    const types = ['styrka','lopning','yoga','promenad','grupp','pt'];
+    const typeColors = { styrka:'var(--styrka)', lopning:'var(--lopning)', yoga:'var(--yoga)', promenad:'var(--promenad)', grupp:'var(--grupp)', pt:'var(--pt)' };
+    const typeCounts = {};
+    types.forEach(t => typeCounts[t] = fs.filter(s => s.type === t).length);
+    const maxType = Math.max(...Object.values(typeCounts), 1);
+    document.getElementById('stat-type-bars').innerHTML = types
+      .filter(t => typeCounts[t] > 0)
+      .sort((a,b) => typeCounts[b]-typeCounts[a])
+      .map(t => `
+        <div class="type-bar-row">
+          <div class="type-bar-label">${TYPE_LABELS[t]}</div>
+          <div class="type-bar-track"><div class="type-bar-fill" style="width:${(typeCounts[t]/maxType*100).toFixed(1)}%;background:${typeColors[t]}"></div></div>
+          <div class="type-bar-count">${typeCounts[t]}</div>
+        </div>`).join('') || '<div class="no-data-msg">Inga pass att visa.</div>';
+
+    // Energy bars
+    const energyCounts = [0,0,0,0,0];
+    fs.forEach(s => { if (s.energy >= 1 && s.energy <= 5) energyCounts[s.energy-1]++; });
+    const maxEnergy = Math.max(...energyCounts, 1);
+    document.getElementById('stat-energy-bars').innerHTML = [1,2,3,4,5].map(i => `
+      <div class="energy-bar-row">
+        <div class="energy-bar-label">${ENERGY_EMOJI[i]} ${ENERGY_LABEL[i]}</div>
+        <div class="energy-bar-track"><div class="energy-bar-fill" style="width:${(energyCounts[i-1]/maxEnergy*100).toFixed(1)}%"></div></div>
+        <div class="energy-bar-count">${energyCounts[i-1]}</div>
+      </div>`).join('');
+
+    // Monthly bars – last 12 months
+    const monthData = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+      const y = d.getFullYear(), mo = d.getMonth();
+      const count = fs.filter(s => { const sd = new Date(s.datetime); return sd.getFullYear()===y && sd.getMonth()===mo; }).length;
+      const label = d.toLocaleDateString('sv-SE', { month:'short' });
+      monthData.push({ label, count });
+    }
+    const maxMonth = Math.max(...monthData.map(m => m.count), 1);
+    const BAR_MAX_PX = 80;
+    document.getElementById('stat-monthly-bars').innerHTML = `
+      <div class="monthly-row">
+        ${monthData.map(m => `
+          <div class="month-col">
+            <div class="month-count">${m.count || ''}</div>
+            <div class="month-bar" style="height:${Math.max(2, m.count/maxMonth*BAR_MAX_PX)}px;opacity:${m.count ? 0.4+0.6*(m.count/maxMonth) : 0.15}"></div>
+            <div class="month-label">${m.label}</div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  function getWeekKey(d) {
+    const tmp = new Date(d); tmp.setHours(0,0,0,0);
+    tmp.setDate(tmp.getDate() - tmp.getDay());
+    return tmp.toISOString().slice(0,10);
+  }
+
+  function renderLog() {
+    const list = document.getElementById('log-list');
+    renderStats();
+
+    if (sessions.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>Inga pass loggade ännu.<br>Fyll i formuläret och spara ditt första pass!</p></div>`;
+      return;
+    }
+
+    list.innerHTML = sessions.map(s => `
+      <div class="session-card">
+        <div class="card-top">
+          <span class="card-type" style="color:var(--${s.type});background:color-mix(in srgb,var(--${s.type}) 10%,transparent);border:1px solid color-mix(in srgb,var(--${s.type}) 30%,transparent)">${TYPE_LABELS[s.type] || s.type}</span>
+          <div style="display:flex;align-items:center;gap:0.8rem">
+            <span class="card-datetime">${formatDatetime(s.datetime)}</span>
+            <button class="edit-session" onclick="openEdit(${s.id})">✏️</button>
+            <button class="delete-session" onclick="showDeleteConfirm(this, ${s.id})">🗑</button>
+            <span class="delete-confirm" style="display:none;align-items:center;gap:0.4rem">
+              <span style="font-size:0.75rem;color:var(--muted)">Ta bort?</span>
+              <button class="confirm-yes" onclick="deleteSession(${s.id})">Ja</button>
+              <button class="confirm-no" onclick="hideDeleteConfirm(this)">Nej</button>
+            </span>
+          </div>
+        </div>
+        <div class="card-meta">
+          <div class="meta-item"><span>⏱</span><span>${formatDuration(s.duration)}</span></div>
+          ${s.energy ? `<div class="meta-item"><span>${ENERGY_EMOJI[s.energy]}</span><span>${ENERGY_LABEL[s.energy]}</span></div>` : ''}
+          ${(s.exercises||[]).length ? `<div class="meta-item"><span>💪</span><span>${s.exercises.length} övningar</span></div>` : ''}
+          ${(s.runs||[]).length ? `<div class="meta-item"><span>🏃</span><span>${s.runs.length} segment</span></div>` : ''}
+          ${s.promenadKm      ? `<div class="meta-item"><span>🚶</span><span>${s.promenadKm} km</span></div>` : ''}
+          ${s.mindfulnessType ? `<div class="meta-item"><span>🧘</span><span>${s.mindfulnessType}</span></div>` : ''}
+          ${s.ptTrainer  ? `<div class="meta-item"><span>⭐</span><span>${s.ptTrainer}</span></div>` : ''}
+          ${s.trainedWith ? `<div class="meta-item"><span>🤝</span><span>${s.trainedWith}</span></div>` : ''}
+        </div>
+        ${(s.exercises||[]).length ? (() => {
+          const hasSets = s.exercises.some(e => e.sets !== '-');
+          const hasReps = s.exercises.some(e => e.reps !== '-');
+          const hasKg   = s.exercises.some(e => e.kg   !== '-');
+          return `
+          <div class="card-exercises">
+            <h4>Övningar</h4>
+            <table class="ex-table">
+              <tr>
+                <th>Övning</th>
+                ${hasSets ? '<th>Set</th>' : ''}
+                ${hasReps ? '<th>Reps</th>' : ''}
+                ${hasKg   ? '<th>Kg</th>'  : ''}
+              </tr>
+              ${s.exercises.map(e => `<tr>
+                <td>${e.name}</td>
+                ${hasSets ? `<td>${e.sets}</td>` : ''}
+                ${hasReps ? `<td>${e.reps}</td>` : ''}
+                ${hasKg   ? `<td>${e.kg}</td>`   : ''}
+              </tr>`).join('')}
+            </table>
+          </div>`;
+        })() : ''}
+        ${(s.runs||[]).length ? (() => {
+          const hasKm    = s.runs.some(r => r.km    !== '-');
+          const hasPace  = s.runs.some(r => r.pace  !== '-');
+          const hasPulse = s.runs.some(r => r.pulse !== '-');
+          const distans   = s.runs.filter(r => (r.runType||'distans') === 'distans');
+          const intervall = s.runs.filter(r => r.runType === 'intervall');
+          const renderTable = (rows, title) => `
+          <div class="card-exercises">
+            <h4>${title}</h4>
+            <table class="ex-table">
+              <tr>
+                ${hasKm    ? '<th>Km</th>'     : ''}
+                ${hasPace  ? '<th>Min/km</th>' : ''}
+                ${hasPulse ? '<th>Puls</th>'   : ''}
+              </tr>
+              ${rows.map(r => `<tr>
+                ${hasKm    ? `<td>${r.km}</td>`    : ''}
+                ${hasPace  ? `<td>${r.pace}</td>`  : ''}
+                ${hasPulse ? `<td>${r.pulse}</td>` : ''}
+              </tr>`).join('')}
+            </table>
+          </div>`;
+          return (distans.length ? renderTable(distans, 'Distans') : '') +
+                 (intervall.length ? renderTable(intervall, 'Intervall') : '');
+        })() : ''}
+        ${s.notes ? `<div class="card-note">${s.notes}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  // ── PERSONBÄSTA ──
+  let pbCat = 'lopning';
+  let pbFilter = null;
+  let pbRunType = 'distans';
+
+  function setPbCat(cat) {
+    pbCat = cat;
+    pbFilter = null;
+    document.querySelectorAll('.pb-cat-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['lopning','styrka','promenad','duration'][i] === cat);
+    });
+    renderPb();
+  }
+
+  function setPbFilter(val) {
+    pbFilter = pbFilter === val ? null : val;
+    renderPb();
+  }
+
+  function formatPace(pace) {
+    if (!pace || pace === '-') return '–';
+    const mins = Math.floor(pace);
+    const secs = Math.round((pace - mins) * 60);
+    return mins + ':' + String(secs).padStart(2,'0') + ' /km';
+  }
+
+  function renderPb() {
+    const filterRow = document.getElementById('pb-filter-row');
+    const results   = document.getElementById('pb-results');
+
+    if (pbCat === 'lopning') {
+      const allRuns = [];
+      sessions.forEach(s => {
+        if (s.type === 'lopning' && (s.runs||[]).length) {
+          s.runs.forEach(r => {
+            const km = parseFloat(r.km);
+            if (!isNaN(km) && km > 0) {
+              allRuns.push({ date: s.datetime, km, pace: parseFloat(r.pace)||null, pulse: parseInt(r.pulse)||null, name: r.name, runType: r.runType || 'distans' });
+            }
+          });
+        }
+      });
+
+      // Filter row: runType toggle + km filters
+      const distansRuns   = allRuns.filter(r => r.runType === 'distans');
+      const intervallRuns = allRuns.filter(r => r.runType === 'intervall');
+      const uniqueDistansKm   = [...new Set(distansRuns.map(r=>r.km))].sort((a,b)=>a-b);
+      const uniqueIntervallKm = [...new Set(intervallRuns.map(r=>r.km))].sort((a,b)=>a-b);
+
+      const rtBtns = `
+        <button class="pb-filter-btn${pbRunType==='distans'?' active':''}" onclick="pbRunType='distans';pbFilter=null;renderPb()">📏 Distans</button>
+        <button class="pb-filter-btn${pbRunType==='intervall'?' active':''}" onclick="pbRunType='intervall';pbFilter=null;renderPb()">⚡ Intervall</button>
+        <span style="color:var(--border);padding:0 0.3rem">|</span>
+      `;
+      const activeKms = pbRunType === 'distans' ? uniqueDistansKm : uniqueIntervallKm;
+      filterRow.innerHTML = rtBtns + (activeKms.length
+        ? activeKms.map(km => `<button class="pb-filter-btn${pbFilter===km?' active':''}" onclick="setPbFilter(${km})">${km} km</button>`).join('')
+        : `<span style="color:var(--muted);font-size:0.82rem">Inga ${pbRunType}-pass loggade ännu</span>`);
+
+      const activeRuns = allRuns.filter(r => r.runType === pbRunType);
+      const activeFiltered = pbFilter ? activeRuns.filter(r => r.km === pbFilter) : activeRuns;
+
+      if (!activeFiltered.length) {
+        results.innerHTML = `<div class="pb-empty">Inga ${pbRunType}-pass att visa ännu.</div>`;
+        return;
+      }
+
+      const withPace = activeFiltered.filter(r => r.pace).sort((a,b) => a.pace - b.pace);
+      const noPace   = activeFiltered.filter(r => !r.pace).sort((a,b) => new Date(b.date)-new Date(a.date));
+      const sorted   = [...withPace, ...noPace];
+
+      let html = '';
+
+      if (pbFilter) {
+        // Ranking table
+        html += `<div class="pb-section-title">${pbFilter} km – Alla resultat</div>`;
+        html += `<table class="pb-table"><tr><th>#</th><th>Datum</th><th>Namn</th><th>Pace</th><th>Puls</th></tr>`;
+        sorted.forEach((r, i) => {
+          const medals = ['🥇','🥇','🥈','🥉'];
+          const medal  = i === 0 && r.pace ? '🏆 ' : (medals[i+1]||'');
+          const isPb   = i === 0 && r.pace;
+          const d      = new Date(r.date).toLocaleDateString('sv-SE',{month:'short',day:'numeric',year:'numeric'});
+          const rowClass = i === 0 ? 'pb-rank-1' : i === 1 ? 'pb-rank-2' : i === 2 ? 'pb-rank-3' : '';
+          const improvement = i > 0 && r.pace && sorted[0].pace ? ` <span class="pb-improvement">+${((r.pace - sorted[0].pace)*60).toFixed(0)}s/km</span>` : '';
+          html += `<tr class="${rowClass}"><td>${medal}${i+1}</td><td>${d}</td><td>${r.name||'–'}</td><td>${formatPace(r.pace)}${improvement}</td><td>${r.pulse||'–'}</td></tr>`;
+        });
+        html += `</table>`;
+
+        // Trend bars (pace over time)
+        if (withPace.length > 1) {
+          const timeSorted = [...withPace].sort((a,b) => new Date(a.date)-new Date(b.date));
+          const maxPace = Math.max(...timeSorted.map(r=>r.pace));
+          const minPace = Math.min(...timeSorted.map(r=>r.pace));
+          html += `<div class="pb-section-title">Utveckling över tid (pace)</div>`;
+          timeSorted.forEach(r => {
+            const d = new Date(r.date).toLocaleDateString('sv-SE',{month:'short',day:'numeric'});
+            const pct = maxPace === minPace ? 100 : (1-(r.pace-minPace)/(maxPace-minPace))*100;
+            const color = r.pace === minPace ? 'var(--accent)' : 'var(--lopning)';
+            html += `<div class="pb-trend-row">
+              <div class="pb-trend-date">${d}</div>
+              <div class="pb-trend-bar-track"><div class="pb-trend-bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
+              <div class="pb-trend-val">${formatPace(r.pace)}${r.pace===minPace?' 🏆':''}</div>
+            </div>`;
+          });
+        }
+      } else {
+        // Overview: best per distance
+        html += `<div class="pb-section-title">Personbästa per distans (${pbRunType})</div>`;
+        html += `<table class="pb-table"><tr><th>Distans</th><th>Bästa pace</th><th>Datum</th><th>Antal</th></tr>`;
+        activeKms.forEach(km => {
+          const runs = activeRuns.filter(r=>r.km===km && r.pace).sort((a,b)=>a.pace-b.pace);
+          const all  = activeRuns.filter(r=>r.km===km);
+          if (runs.length) {
+            const d = new Date(runs[0].date).toLocaleDateString('sv-SE',{month:'short',day:'numeric',year:'numeric'});
+            html += `<tr><td>🏆 ${km} km</td><td>${formatPace(runs[0].pace)}</td><td>${d}</td><td>${all.length}x</td></tr>`;
+          }
+        });
+        html += `</table><div style="color:var(--muted);font-size:0.8rem;margin-top:0.5rem">Klicka på en distans ovan för detaljvy</div>`;
+      }
+
+      results.innerHTML = html;
+
+    } else if (pbCat === 'styrka') {
+      // Collect all exercises from styrka/grupp/pt
+      const allEx = [];
+      sessions.forEach(s => {
+        if (['styrka','grupp','pt'].includes(s.type) && (s.exercises||[]).length) {
+          s.exercises.forEach(e => {
+            const kg   = parseFloat(e.kg);
+            const reps = parseInt(e.reps);
+            if (e.name && !isNaN(kg) && kg > 0) {
+              allEx.push({ date: s.datetime, name: e.name.trim(), kg, reps: isNaN(reps)?null:reps, sets: parseInt(e.sets)||null });
+            }
+          });
+        }
+      });
+
+      const uniqueEx = [...new Set(allEx.map(e=>e.name))].sort();
+      filterRow.innerHTML = uniqueEx.length
+        ? uniqueEx.map(n => `<button class="pb-filter-btn${pbFilter===n?' active':''}" onclick="setPbFilter('${n.replace(/'/g,"\\'")}') ">${n}</button>`).join('')
+        : '<span style="color:var(--muted);font-size:0.82rem">Logga styrkeövningar med kg för att se filter</span>';
+
+      const filtered = pbFilter ? allEx.filter(e=>e.name===pbFilter) : allEx;
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="pb-empty">Inga styrkedata att visa ännu.</div>';
+        return;
+      }
+
+      let html = '';
+
+      if (pbFilter) {
+        const sorted = [...filtered].sort((a,b)=>b.kg-a.kg);
+        const timeSorted = [...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const maxKg = Math.max(...filtered.map(e=>e.kg));
+
+        html += `<div class="pb-section-title">${pbFilter} – Alla resultat</div>`;
+        html += `<table class="pb-table"><tr><th>#</th><th>Datum</th><th>Kg</th><th>Reps</th><th>Set</th></tr>`;
+        sorted.forEach((e,i) => {
+          const d = new Date(e.date).toLocaleDateString('sv-SE',{month:'short',day:'numeric',year:'numeric'});
+          const rowClass = i===0?'pb-rank-1':i===1?'pb-rank-2':i===2?'pb-rank-3':'';
+          const medal = i===0?'🏆 ':i===1?'🥈 ':i===2?'🥉 ':'';
+          html += `<tr class="${rowClass}"><td>${medal}${i+1}</td><td>${d}</td><td>${e.kg} kg</td><td>${e.reps||'–'}</td><td>${e.sets||'–'}</td></tr>`;
+        });
+        html += `</table>`;
+
+        if (timeSorted.length > 1) {
+          html += `<div class="pb-section-title">Utveckling över tid (kg)</div>`;
+          timeSorted.forEach(e => {
+            const d = new Date(e.date).toLocaleDateString('sv-SE',{month:'short',day:'numeric'});
+            const pct = maxKg === 0 ? 0 : (e.kg/maxKg*100).toFixed(1);
+            const color = e.kg === maxKg ? 'var(--accent)' : 'var(--styrka)';
+            html += `<div class="pb-trend-row">
+              <div class="pb-trend-date">${d}</div>
+              <div class="pb-trend-bar-track"><div class="pb-trend-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+              <div class="pb-trend-val">${e.kg} kg${e.kg===maxKg?' 🏆':''}</div>
+            </div>`;
+          });
+        }
+      } else {
+        html += `<div class="pb-section-title">Personbästa per övning</div>`;
+        html += `<table class="pb-table"><tr><th>Övning</th><th>Max kg</th><th>Datum</th><th>Loggat</th></tr>`;
+        uniqueEx.forEach(name => {
+          const exs = allEx.filter(e=>e.name===name).sort((a,b)=>b.kg-a.kg);
+          const d = new Date(exs[0].date).toLocaleDateString('sv-SE',{month:'short',day:'numeric',year:'numeric'});
+          html += `<tr><td>🏆 ${name}</td><td>${exs[0].kg} kg</td><td>${d}</td><td>${exs.length}x</td></tr>`;
+        });
+        html += `</table>`;
+      }
+
+      results.innerHTML = html;
+
+    } else if (pbCat === 'promenad') {
+      filterRow.innerHTML = '';
+      const walks = sessions.filter(s => s.type === 'promenad' && s.promenadKm)
+        .map(s => ({ date: s.datetime, km: parseFloat(s.promenadKm), dur: s.duration }))
+        .filter(w => w.km > 0)
+        .sort((a,b) => b.km - a.km);
+
+      if (!walks.length) {
+        results.innerHTML = '<div class="pb-empty">Logga promenader med distans för att se statistik.</div>';
+        return;
+      }
+
+      const maxKm = walks[0].km;
+      const timeSorted = [...walks].sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+      let html = `<div class="pb-section-title">Alla promenader – längst först</div>`;
+      html += `<table class="pb-table"><tr><th>#</th><th>Datum</th><th>Distans</th><th>Tid</th></tr>`;
+      walks.forEach((w,i) => {
+        const d = new Date(w.date).toLocaleDateString('sv-SE',{month:'short',day:'numeric',year:'numeric'});
+        const rowClass = i===0?'pb-rank-1':i===1?'pb-rank-2':i===2?'pb-rank-3':'';
+        const medal = i===0?'🏆 ':i===1?'🥈 ':i===2?'🥉 ':'';
+        html += `<tr class="${rowClass}"><td>${medal}${i+1}</td><td>${d}</td><td>${w.km} km</td><td>${formatDuration(w.dur)}</td></tr>`;
+      });
+      html += `</table>`;
+
+      if (timeSorted.length > 1) {
+        html += `<div class="pb-section-title">Distans över tid</div>`;
+        timeSorted.forEach(w => {
+          const d = new Date(w.date).toLocaleDateString('sv-SE',{month:'short',day:'numeric'});
+          const pct = (w.km/maxKm*100).toFixed(1);
+          const color = w.km===maxKm?'var(--accent)':'var(--promenad)';
+          html += `<div class="pb-trend-row">
+            <div class="pb-trend-date">${d}</div>
+            <div class="pb-trend-bar-track"><div class="pb-trend-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+            <div class="pb-trend-val">${w.km} km${w.km===maxKm?' 🏆':''}</div>
+          </div>`;
+        });
+      }
+
+      results.innerHTML = html;
+
+    } else if (pbCat === 'duration') {
+      // Longest sessions per type
+      filterRow.innerHTML = '';
+      const types = ['styrka','lopning','yoga','promenad','grupp','pt'];
+      let html = `<div class="pb-section-title">Längsta pass per träningstyp</div>`;
+      html += `<table class="pb-table"><tr><th>Typ</th><th>Längsta</th><th>Snitt</th><th>Datum</th></tr>`;
+      types.forEach(t => {
+        const ts = sessions.filter(s=>s.type===t);
+        if (!ts.length) return;
+        const withDur = ts.map(s=>({...s, mins: durToMinutes(s.duration)})).sort((a,b)=>b.mins-a.mins);
+        const best = withDur[0];
+        const avg  = withDur.reduce((a,s)=>a+s.mins,0)/withDur.length;
+        const d = new Date(best.datetime).toLocaleDateString('sv-SE',{month:'short',day:'numeric',year:'numeric'});
+        html += `<tr><td>${TYPE_LABELS[t]}</td><td>🏆 ${formatMinutes(best.mins)}</td><td>${formatMinutes(avg)}</td><td>${d}</td></tr>`;
+      });
+      html += `</table>`;
+
+      // All sessions trend
+      html += `<div class="pb-section-title">Alla pass – duration över tid</div>`;
+      const allByTime = [...sessions].sort((a,b)=>new Date(a.datetime)-new Date(b.datetime));
+      const maxMins   = Math.max(...allByTime.map(s=>durToMinutes(s.duration)), 1);
+      allByTime.forEach(s => {
+        const d    = new Date(s.datetime).toLocaleDateString('sv-SE',{month:'short',day:'numeric'});
+        const mins = durToMinutes(s.duration);
+        const pct  = (mins/maxMins*100).toFixed(1);
+        html += `<div class="pb-trend-row">
+          <div class="pb-trend-date">${d}</div>
+          <div class="pb-trend-bar-track"><div class="pb-trend-bar-fill" style="width:${pct}%;background:var(--${s.type})"></div></div>
+          <div class="pb-trend-val">${formatMinutes(mins)}</div>
+        </div>`;
+      });
+
+      results.innerHTML = html;
+    }
+  }
+
+  // ── EDIT MODAL ──
+  let editingId = null;
+  let editEnergy = 0;
+
+  function openEdit(id) {
+    const s = sessions.find(s => s.id === id);
+    if (!s) return;
+    editingId = id;
+    editEnergy = s.energy || 0;
+
+    document.getElementById('edit-type').value     = s.type;
+    document.getElementById('edit-datetime').value = s.datetime;
+    document.getElementById('edit-dur-h').value    = s.duration.h || '';
+    document.getElementById('edit-dur-m').value    = s.duration.m || '';
+    document.getElementById('edit-dur-s').value    = s.duration.s || '';
+    document.getElementById('edit-notes').value         = s.notes || '';
+    document.getElementById('edit-trained-with').value  = s.trainedWith || '';
+
+    document.querySelectorAll('#edit-energy-row .energy-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i + 1 === editEnergy);
+    });
+
+    document.getElementById('edit-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEdit() {
+    document.getElementById('edit-modal').style.display = 'none';
+    document.body.style.overflow = '';
+    editingId = null;
+  }
+
+  function setEditEnergy(level) {
+    editEnergy = level;
+    document.querySelectorAll('#edit-energy-row .energy-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i + 1 === level);
+    });
+  }
+
+  function saveEdit() {
+    const idx = sessions.findIndex(s => s.id === editingId);
+    if (idx === -1) return;
+    const s = sessions[idx];
+
+    sessions[idx] = {
+      ...s,
+      type:        document.getElementById('edit-type').value,
+      datetime:    document.getElementById('edit-datetime').value,
+      duration: {
+        h: parseInt(document.getElementById('edit-dur-h').value) || 0,
+        m: parseInt(document.getElementById('edit-dur-m').value) || 0,
+        s: parseInt(document.getElementById('edit-dur-s').value) || 0,
+      },
+      energy:      editEnergy,
+      notes:       document.getElementById('edit-notes').value.trim(),
+      trainedWith: document.getElementById('edit-trained-with').value.trim() || null,
+    };
+
+    localStorage.setItem('traning_sessions', JSON.stringify(sessions));
+    closeEdit();
+    renderLog();
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('edit-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEdit();
+  });
+
+  
+  let viktEntries = JSON.parse(localStorage.getItem('vikt_entries') || '[]');
+  let viktPeriod = 'all';
+
+  function setViktPeriod(period) {
+    viktPeriod = period;
+    document.querySelectorAll('#tab-vikt .filter-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['all','year','6month','3month','month'][i] === period);
+    });
+    renderVikt();
+  }
+
+  function saveVikt() {
+    const datum = document.getElementById('vikt-datum').value;
+    const kg    = parseFloat(document.getElementById('vikt-kg').value);
+    const notes = document.getElementById('vikt-notes').value.trim();
+    if (!datum) { document.getElementById('vikt-datum').focus(); return; }
+    if (isNaN(kg) || kg <= 0) { document.getElementById('vikt-kg').focus(); return; }
+    viktEntries.push({ id: Date.now(), datum, kg, notes });
+    viktEntries.sort((a,b) => a.datum.localeCompare(b.datum));
+    localStorage.setItem('vikt_entries', JSON.stringify(viktEntries));
+    document.getElementById('vikt-kg').value = '';
+    document.getElementById('vikt-notes').value = '';
+    renderVikt();
+  }
+
+  function deleteVikt(id) {
+    viktEntries = viktEntries.filter(e => e.id !== id);
+    localStorage.setItem('vikt_entries', JSON.stringify(viktEntries));
+    renderVikt();
+  }
+
+  function renderVikt() {
+    const list = document.getElementById('vikt-list');
+
+    if (!viktEntries.length) {
+      document.getElementById('vikt-current').textContent = '–';
+      document.getElementById('vikt-start').textContent   = '–';
+      document.getElementById('vikt-change').textContent  = '–';
+      document.getElementById('vikt-lowest').textContent  = '–';
+      document.getElementById('vikt-chart-wrap').innerHTML = '<div class="no-data-msg">Logga din första vikt för att se diagrammet!</div>';
+      list.innerHTML = '';
+      return;
+    }
+
+    const sorted  = [...viktEntries].sort((a,b) => a.datum.localeCompare(b.datum));
+    const latest  = sorted[sorted.length - 1];
+    const first   = sorted[0];
+    const lowest  = sorted.reduce((a,b) => b.kg < a.kg ? b : a);
+    const change  = latest.kg - first.kg;
+
+    document.getElementById('vikt-current').textContent = latest.kg + ' kg';
+    document.getElementById('vikt-start').textContent   = first.kg + ' kg';
+    document.getElementById('vikt-lowest').textContent  = lowest.kg + ' kg';
+    const changeEl = document.getElementById('vikt-change');
+    changeEl.textContent = (change > 0 ? '+' : '') + change.toFixed(1) + ' kg';
+    changeEl.style.color = 'var(--text)';
+
+    // Draw chart – filtered by period
+    const now = new Date();
+    const periodMs = { all: Infinity, year: 365, '6month': 183, '3month': 90, month: 30 };
+    const days = periodMs[viktPeriod] || Infinity;
+    const chartEntries = sorted.filter(e => {
+      if (days === Infinity) return true;
+      return (now - new Date(e.datum)) <= days * 86400000;
+    });
+    renderViktChart(chartEntries);
+
+    // Log entries (newest first)
+    const reversed = [...sorted].reverse();
+    list.innerHTML = reversed.map((e, i) => {
+      const prev = reversed[i + 1];
+      const diff = prev ? e.kg - prev.kg : null;
+      const diffHtml = diff !== null
+        ? `<span class="${diff > 0 ? 'vikt-diff-pos' : 'vikt-diff-neg'}">${diff > 0 ? '+' : ''}${diff.toFixed(1)} kg</span>`
+        : '';
+      const d = new Date(e.datum).toLocaleDateString('sv-SE', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+      return `<div class="vikt-log-row">
+        <div class="vikt-log-left">
+          <span class="vikt-log-date">${d}</span>
+          ${e.notes ? `<span class="vikt-log-note">${e.notes}</span>` : ''}
+        </div>
+        <div class="vikt-log-right">
+          <span class="vikt-log-kg">${e.kg} kg</span>
+          ${diffHtml}
+          <button class="delete-session" onclick="deleteVikt(${e.id})" style="font-size:0.8rem">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderViktChart(entries) {
+    const wrap = document.getElementById('vikt-chart-wrap');
+    if (entries.length < 2) {
+      wrap.innerHTML = '<div class="no-data-msg">Logga minst 2 vikter för att se diagrammet</div>';
+      return;
+    }
+
+    const W = wrap.clientWidth - 32;
+    const H = 180;
+    const PAD = { top: 20, right: 10, bottom: 28, left: 36 };
+    const innerW = W - PAD.left - PAD.right;
+    const innerH = H - PAD.top - PAD.bottom;
+
+    const kgs   = entries.map(e => e.kg);
+    const minKg = Math.min(...kgs) - 1;
+    const maxKg = Math.max(...kgs) + 1;
+    const n     = entries.length;
+
+    const xPos = i => PAD.left + (i / (n - 1)) * innerW;
+    const yPos = kg => PAD.top + innerH - ((kg - minKg) / (maxKg - minKg)) * innerH;
+
+    // Build path
+    const pts  = entries.map((e, i) => `${xPos(i).toFixed(1)},${yPos(e.kg).toFixed(1)}`);
+    const line = 'M' + pts.join(' L');
+    const area = `M${xPos(0).toFixed(1)},${(PAD.top+innerH).toFixed(1)} L` + pts.join(' L') + ` L${xPos(n-1).toFixed(1)},${(PAD.top+innerH).toFixed(1)} Z`;
+
+    // Y axis labels
+    const ySteps = 4;
+    let yLabels = '';
+    for (let i = 0; i <= ySteps; i++) {
+      const kg  = minKg + (maxKg - minKg) * (i / ySteps);
+      const y   = yPos(kg);
+      yLabels += `<text x="${PAD.left - 6}" y="${y.toFixed(1)}" text-anchor="end" font-size="9" fill="var(--muted)" dominant-baseline="middle">${kg.toFixed(1)}</text>`;
+      yLabels += `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${PAD.left + innerW}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`;
+    }
+
+    // X axis labels (show max 6)
+    const step = Math.max(1, Math.ceil(n / 6));
+    let xLabels = '';
+    entries.forEach((e, i) => {
+      if (i % step !== 0 && i !== n - 1) return;
+      const x = xPos(i);
+      const d = new Date(e.datum).toLocaleDateString('sv-SE', { day:'numeric', month:'short' });
+      xLabels += `<text x="${x.toFixed(1)}" y="${(PAD.top + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="9" fill="var(--muted)">${d}</text>`;
+    });
+
+    // Dots
+    let dots = '';
+    entries.forEach((e, i) => {
+      const x = xPos(i), y = yPos(e.kg);
+      const isLatest = i === n - 1;
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isLatest ? 4 : 3}" fill="${isLatest ? 'var(--accent)' : 'var(--lopning)'}" />`;
+    });
+
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;overflow:visible">
+      <defs>
+        <linearGradient id="viktGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${yLabels}
+      <path d="${area}" fill="url(#viktGrad)" />
+      <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+    </svg>`;
+  }
+
+  // ── EXPORT ──
+  function csvEscape(val) {
+    if (val === null || val === undefined) return '';
+    const str = String(val);
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) return '"' + str.replace(/"/g, '""') + '"';
+    return str;
+  }
+
+  function downloadCsv(filename, rows) {
+    const bom  = '\uFEFF'; // UTF-8 BOM so Excel handles Swedish chars
+    const csv  = bom + rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportLogg() {
+    if (!sessions.length) return;
+    const rows = [['Datum', 'Tid', 'Träningstyp', 'Duration (min)', 'Energinivå', 'Tränade med', 'Anteckningar', 'Övningar', 'Distans (km)', 'Pace (min/km)', 'Promenad (km)', 'Mindfulness', 'PT']];
+    sessions.forEach(s => {
+      const d   = new Date(s.datetime);
+      const dur = (s.duration.h||0)*60 + (s.duration.m||0) + Math.round((s.duration.s||0)/60);
+      const ex  = (s.exercises||[]).map(e => `${e.name} ${e.sets||''}x${e.reps||''} ${e.kg||''}kg`).join(' | ');
+      const runs = (s.runs||[]).filter(r=>r.runType==='distans');
+      const km   = runs.map(r=>r.km).filter(v=>v&&v!=='-').join(' | ');
+      const pace = runs.map(r=>r.pace).filter(v=>v&&v!=='-').join(' | ');
+      rows.push([
+        d.toLocaleDateString('sv-SE'),
+        d.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'}),
+        TYPE_LABELS[s.type] || s.type,
+        dur,
+        s.energy ? ENERGY_LABEL[s.energy] : '',
+        s.trainedWith || '',
+        s.notes || '',
+        ex,
+        km,
+        pace,
+        s.promenadKm || '',
+        s.mindfulnessType || '',
+        s.ptTrainer || ''
+      ]);
+    });
+    downloadCsv('träningslogg.csv', rows);
+  }
+
+  function exportStatistik() {
+    const fs = getFilteredSessions();
+    if (!fs.length) return;
+
+    // Sheet 1: pass per typ
+    const rows = [['Statistik – ' + (['all','year','3month','month'][['all','year','3month','month'].indexOf(statPeriod)] || statPeriod)]];
+    rows.push([]);
+    rows.push(['Träningstyp', 'Antal pass', 'Total tid (min)', 'Snitt tid (min)']);
+    const types = ['styrka','lopning','yoga','promenad','grupp','pt'];
+    types.forEach(t => {
+      const ts = fs.filter(s=>s.type===t);
+      if (!ts.length) return;
+      const mins = ts.reduce((a,s)=>a+durToMinutes(s.duration),0);
+      rows.push([TYPE_LABELS[t], ts.length, Math.round(mins), Math.round(mins/ts.length)]);
+    });
+
+    rows.push([]);
+    rows.push(['Energinivå', 'Antal pass']);
+    [1,2,3,4,5].forEach(i => {
+      const cnt = fs.filter(s=>s.energy===i).length;
+      if (cnt) rows.push([ENERGY_LABEL[i], cnt]);
+    });
+
+    rows.push([]);
+    rows.push(['Veckodagsanalys', 'Antal pass']);
+    const dayNames = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
+    const dayCounts = [0,0,0,0,0,0,0];
+    fs.forEach(s => dayCounts[new Date(s.datetime).getDay()]++);
+    dayNames.forEach((d,i) => { if (dayCounts[i]) rows.push([d, dayCounts[i]]); });
+
+    downloadCsv('träning-statistik.csv', rows);
+  }
+
+  function exportVikt() {
+    if (!viktEntries.length) return;
+    const sorted = [...viktEntries].sort((a,b)=>a.datum.localeCompare(b.datum));
+    const rows = [['Datum', 'Vikt (kg)', 'Förändring (kg)', 'Anteckningar']];
+    sorted.forEach((e, i) => {
+      const prev = sorted[i-1];
+      const diff = prev ? (e.kg - prev.kg).toFixed(1) : '';
+      rows.push([e.datum, e.kg, diff, e.notes || '']);
+    });
+    downloadCsv('viktutveckling.csv', rows);
+  }
+
+  // ── INIT ──
+  addExercise();
+  document.getElementById('vikt-datum').value = new Date().toISOString().slice(0,10);
+  renderLog();
+</script>
+</body>
+</html>
